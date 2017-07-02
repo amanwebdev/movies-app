@@ -40,12 +40,17 @@ export class HomeComponent implements OnInit {
 
   public genreFilters: string[] = [];
 
-  public constructor(private movieService: MovieService, 
+  public constructor(private movieService: MovieService,
     private indexedDB: IndexedDBService, private movieStore: MovieStore) {
-    
   }
-  public ngOnInit(): void {
 
+  public ngOnInit(): void {
+    this.movies = this.movieStore.movies;
+    this.totalItems = this.movies.length;
+    this.setCurrentPage();
+  }
+
+  private setup(): void {
     this.movieService.getMovieListing().subscribe(garr => {
       this.movies = garr;
       this.totalItems = this.movies.length;
@@ -56,9 +61,7 @@ export class HomeComponent implements OnInit {
           (readyState) => { console.log('IndexedDB service: adding record: ' + readyState); }, null
         );
       });
-
     });
-
   }
 
   get moviesList(): Observable<Array<Movie>> {

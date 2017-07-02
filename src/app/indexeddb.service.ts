@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
+import { MovieService } from './movie.service';
 
 import { Movie } from './movie';
 
@@ -9,7 +10,7 @@ import { Movie } from './movie';
 
   db: IDBDatabase;
 
-  constructor() { }
+  constructor(private movieService: MovieService) { }
 
   openDBAsync(dbName: string, version: number) {
 
@@ -40,11 +41,26 @@ import { Movie } from './movie';
         var movieStore: IDBObjectStore = this.db.createObjectStore("MovieStore", { keyPath: 'id', autoIncrement: true });
 
         console.log('IndexedDB service: creating ' + dbName + ' completed.');
-
+        
+        this.fetchDataFromApi();
       }
 
     });
 
+  }
+  
+  private fetchDataFromApi(){
+    this.movieService.getMovieListing().subscribe(garr => {
+      const movies = garr;
+      
+
+      movies.forEach(m => {
+        this.addRecordAsync("MovieStore", m).forEach(
+          (readyState) => { console.log('IndexedDB service: adding record: ' + readyState); }, null
+        );
+      });
+
+    });
   }
 
   private getObjectStore(storeName: string, mode: string) {
