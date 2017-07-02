@@ -1,0 +1,108 @@
+
+<div class="container" style="margin-top: 0px !important">
+
+	<nav class="nav">
+		<div class="nav-left">
+			<a class="nav-item">
+				<h2 class="title">movies</h2>
+			</a>
+		</div>
+
+
+		<!-- This "nav-toggle" hamburger menu is only visible on mobile -->
+		<!-- You need JavaScript to toggle the "is-active" class on "nav-menu" -->
+		<span class="nav-toggle"> <span></span> <span></span> <span></span>
+		</span>
+
+
+		<div class="nav-center">
+			<div class="nav-item">
+				<input value="dummy" placeholder="dumm input..." />
+				<!-- <input [(ngModel)]="discmovie"
+       [typeahead]="dataSource"
+       typeaheadOptionField="title"
+               typeaheadGroupField="platform"
+               typeaheadOptionsLimit="7"
+               placeholder="Discover"
+               (typeaheadOnSelect)="typeaheadOnSelect($event)"
+               class="input">     -->
+
+			</div>
+		</div>
+		<!-- This "nav-menu" is hidden on mobile -->
+		<!-- Add the modifier "is-active" to display it on mobile -->
+		<div class="nav-right nav-menu">
+			<div class="nav-item">
+				<div class="field is-grouped"></div>
+			</div>
+		</div>
+	</nav>
+
+	<div class="tabs is-right">
+		<div style="border-bottom: 1px solid #ccc">
+			<p class="control">
+				<!-- <input class="input" [(ngModel)]="searchText"
+						   (keypress) = "filtermoviesByText()"
+               type="text" placeholder="Find by name..."> -->
+			</p>
+		</div>
+		<ul>
+			<li>Sort By</li>
+			<li [class.is-active]="sortBy.sortType==0" (click)="sortByBudget()"><a><span
+					class="sort-anchor">Budget</span> <i class="fa"
+					[class.fa-arrow-down]="sortBy.order==1 && sortBy.sortType==0"
+					[class.fa-arrow-up]="sortBy.order==0 && sortBy.sortType==0"></i></a></li>
+			<li [class.is-active]="sortBy.sortType==1" (click)="sortByYear()"><a><span
+					class="sort-anchor">Year</span> <i class="fa"
+					[class.fa-arrow-down]="sortBy.order==1 && sortBy.sortType==1"
+					[class.fa-arrow-up]="sortBy.order==0 && sortBy.sortType==1"></i></a></li>
+		</ul>
+	</div>
+
+	<div class="columns is-multiline" style="margin-top: 50px">
+
+		<div class="column is-3 is-mobile" *ngFor="let movie of currPagemovies">
+			<a [attr.href]="movie.movie_imdb_link" target="_blank">
+				<div class="box">
+					<div class="title">{{movie.movie_title}}</div>
+					<p>
+						<strong>Year </strong>{{movie.title_year}}
+					</p>
+					<p>
+						<strong>Director </strong>{{movie.director_name}}
+					</p>
+					<p>
+						<strong>Actors </strong>{{movie.actor_1_name}},{{movie.actor_2_name}}
+					</p>
+					<p>
+						<strong>Genres </strong>{{movie.genres}}
+					</p>
+					<p>
+						<strong>Language </strong>{{movie.language}}
+					</p>
+					<p>
+						<strong>Country </strong>{{movie.country}}
+					</p>
+					<p>
+						<strong>Content Rating </strong>{{movie.content_rating}}
+					</p>
+					<p>
+						<strong>Budget </strong>{{movie.budget}}
+					</p>
+
+				</div>
+			</a>
+
+		</div>
+
+
+	</div>
+	<div class="columns" style="text-align: center;">
+		<div class="column">
+			<pager [totalItems]="totalItems" [(ngModel)]="currentPage"
+				(pageChanged)="pageChanged($event)" pageBtnClass="pagination-link"
+				[itemsPerPage]="itemsPerPage"></pager>
+		</div>
+	</div>
+
+</div>
