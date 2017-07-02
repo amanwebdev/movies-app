@@ -2,7 +2,6 @@
 import { Injectable } from '@angular/core';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
-import { ObjectStore } from './object-store';
 
 import { Movie } from './movie';
 
@@ -16,20 +15,16 @@ import { Movie } from './movie';
 
     return new Observable((observer: Observer<string>) => {
 
-      // Opens the database.
       var request: IDBOpenDBRequest = indexedDB.open(dbName, version);
 
-      // Success.
       request.onsuccess = (event: Event) => {
 
-        // Instances the db object.
         this.db = (<IDBOpenDBRequest>event.target).result;
 
         observer.next((<IDBOpenDBRequest>event.target).readyState);
         observer.complete();
 
       };
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBOpenDBRequest>event.target).error.name);
@@ -38,15 +33,11 @@ import { Movie } from './movie';
 
 
       };
-      // The db doesn't exist, so cretes it.
       request.onupgradeneeded = (event: Event) => {
 
-        // Instances the db object.
         this.db = (<IDBOpenDBRequest>event.target).result;;
 
-        // Instances the ObjectStores class and calls the createStores method.
-        var objectStores: ObjectStore = new ObjectStore();
-        objectStores.createStores(this.db);
+        var movieStore: IDBObjectStore = this.db.createObjectStore("MovieStore", { keyPath: 'id', autoIncrement: true });
 
         console.log('IndexedDB service: creating ' + dbName + ' completed.');
 
@@ -56,13 +47,6 @@ import { Movie } from './movie';
 
   }
 
-  /**
-   * Gets the object store.
-   * 
-   * @param storeName The name of the object store
-   * @param mode Transaction mode
-   * @return The object store
-   */
   private getObjectStore(storeName: string, mode: string) {
 
     var tx: IDBTransaction = this.db.transaction(storeName, mode);
@@ -70,25 +54,16 @@ import { Movie } from './movie';
 
   }
 
-  /**
-   * Gets all records.
-   * 
-   * @param storeName The name of the object store
-   * @return An observable of record
-   */
   getAllRecordsAsync(storeName: string) {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readonly");
 
     return new Observable((observer: Observer<any>) => {
 
       var request: IDBRequest = store.openCursor();
 
-      // Success.
       request.onsuccess = (event: Event) => {
 
-        // Steps through all the values in the object store.
         var cursor: IDBCursorWithValue = (<IDBRequest>event.target).result;
 
         if (cursor) {
@@ -104,7 +79,6 @@ import { Movie } from './movie';
         }
 
       }
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBRequest>event.target).error.name);
@@ -120,17 +94,14 @@ import { Movie } from './movie';
 
   getRecordByKeyword(storeName: string, indexName: string, keyword: any): Observable<Movie[]> {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readonly");
 
     return new Observable((observer: Observer<any>) => {
 
       var request: IDBRequest = store.openCursor();
       const movies = [];
-      // Success.
       request.onsuccess = (event: Event) => {
 
-        // Steps through all the values in the object store.
         var cursor: IDBCursorWithValue = (<IDBRequest>event.target).result;
 
         if (cursor) {
@@ -141,24 +112,23 @@ import { Movie } from './movie';
           var movie: Movie = JSON.parse(str);
           if (movie.movie_title.toLowerCase()
             .search(keyword.toLowerCase()) > -1) {
-            
-            var existing : Movie[] = movies.filter(m=>{
-              return m.movie_title===movie.movie_title;
+
+            var existing: Movie[] = movies.filter(m => {
+              return m.movie_title === movie.movie_title;
             })
-            if(existing && existing.length==0){
-               movies.push(movie);
+            if (existing && existing.length == 0) {
+              movies.push(movie);
             }
-           
+
           }
 
         }
         else {
-          console.log("returngin mmovies "+movies.length);
+          console.log("returngin mmovies " + movies.length);
           observer.next(movies);
         }
 
       }
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBRequest>event.target).error.name);
@@ -170,16 +140,8 @@ import { Movie } from './movie';
     });
   }
 
-  /**
-   * Adds a record.
-   * 
-   * @param storeName The name of the object store
-   * @param record The record to add
-   * @return An observable of readyState
-   */
   addRecordAsync(storeName: string, record: any) {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readwrite");
 
     return new Observable((observer: Observer<string>) => {
@@ -205,31 +167,20 @@ import { Movie } from './movie';
     });
 
   }
-
-  /**
-   * Deletes a record.
-   * 
-   * @param storeName The name of the object store
-   * @param key The key of the record to delete
-   * @return An observable of readyState
-   */
   deleteRecordAsync(storeName: string, key: string) {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readwrite");
 
     return new Observable((observer: Observer<string>) => {
 
-      var request: IDBRequest = store.delete(key); // Deletes the record by the key.
+      var request: IDBRequest = store.delete(key);
 
-      // Success.
       request.onsuccess = (event: Event) => {
 
         observer.next((<IDBRequest>event.target).readyState);
         observer.complete();
 
       }
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBRequest>event.target).error.name);
@@ -242,30 +193,20 @@ import { Movie } from './movie';
 
   }
 
-  /**
-   * Edits a record.
-   * 
-   * @param storeName The name of the object store
-   * @param record The record to update
-   * @return An observable of readyState
-   */
   editRecordAsync(storeName: string, record: any) {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readwrite");
 
     return new Observable((observer: Observer<string>) => {
 
-      var request: IDBRequest = store.put(record); // Puts the updated record back into the database.
+      var request: IDBRequest = store.put(record);
 
-      // Success.
       request.onsuccess = (event: Event) => {
 
         observer.next((<IDBRequest>event.target).readyState);
         observer.complete();
 
       }
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBRequest>event.target).error.name);
@@ -278,31 +219,20 @@ import { Movie } from './movie';
 
   }
 
-
-
-  /**
-   * Clears an object store.
-   * 
-   * @param storeName The name of the object store
-   * @return An observable of readyState
-   */
   clearObjectStoreAsync(storeName: string) {
 
-    // Gets the object store.
     var store: IDBObjectStore = this.getObjectStore(storeName, "readwrite");
 
     return new Observable((observer: Observer<string>) => {
 
-      var request: IDBRequest = store.clear(); // Clears the object store.
+      var request: IDBRequest = store.clear();
 
-      // Success.
       request.onsuccess = (event: Event) => {
 
         observer.next((<IDBRequest>event.target).readyState);
         observer.complete();
 
       }
-      // Error.
       request.onerror = (event: Event) => {
 
         console.log('IndexedDB service: ' + (<IDBRequest>event.target).error.name);
@@ -315,9 +245,6 @@ import { Movie } from './movie';
 
   }
 
-  /**
-   * Closes the database.
-   */
   closeDB() {
 
     this.db.close();

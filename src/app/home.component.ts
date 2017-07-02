@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MovieService } from './movie.service';
 import { Movie } from './movie';
 import { MovieStore } from './movie-store';
@@ -15,12 +15,7 @@ enum SortOrder {
 }
 @Component({
   selector: 'home',
-  templateUrl: './home.component.html',
-  encapsulation: ViewEncapsulation.None,
-  styleUrls: ['./app.component.css',
-    '../../node_modules/bulma/css/bulma.css',
-    '../../node_modules/font-awesome/css/font-awesome.css'
-  ]
+  templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
 

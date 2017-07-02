@@ -1,11 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { IndexedDBService } from './indexeddb.service';
 import { MovieStore } from './movie-store';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  encapsulation: ViewEncapsulation.None,
+  styleUrls: ['./app.component.css',
+    '../../node_modules/bulma/css/bulma.css',
+    '../../node_modules/font-awesome/css/font-awesome.css'
+  ]
 })
 
 export class AppComponent {

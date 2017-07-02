@@ -14,6 +14,17 @@ import { IndexedDBService } from './indexeddb.service';
 import { Movie } from './movie';
 import { MovieStore } from './movie-store';
 
+import { ChartModule } from 'angular2-highcharts';
+import { HighchartsStatic } from 'angular2-highcharts/dist/HighchartsService';
+
+export declare let require: any;
+export function highchartsFactory() {
+  const hc = require('highcharts/highstock.src')
+  const dd = require('highcharts/modules/exporting');
+  dd(hc);
+  return hc;
+}
+
 @Injectable() export class IndexedDB {
 
   constructor(public indexedDB: IndexedDBService, public entity: MovieStore) { }
@@ -80,7 +91,8 @@ export function initIndexedDB(indexedDB: IndexedDB): Function {
     HttpModule,
     PaginationModule.forRoot(),
     TypeaheadModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
+    ChartModule
   ],
   providers: [MovieService, IndexedDBService, MovieStore, IndexedDB,
     {
@@ -88,7 +100,12 @@ export function initIndexedDB(indexedDB: IndexedDB): Function {
       useFactory: initIndexedDB,
       deps: [IndexedDB],
       multi: true
-    }],
+    },
+    {
+      provide: HighchartsStatic,
+      useFactory: highchartsFactory
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

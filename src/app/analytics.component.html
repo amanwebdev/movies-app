@@ -1,5 +1,18 @@
 <div class="columns">
+	<div class="column is-2"></div>
 	<div class="column is-8">
 		
+		<div class="tabs">
+			<ul>
+				<li class="is-active"><a>Pictures</a></li>
+				<li tooltip="Disabled"><a>Releases By Year</a></li>
+				<li tooltip="Disabled"><a>Genre Distribution</a></li>
+				<li tooltip="Disabled"><a>Movie Budget Trend</a></li>
+			</ul>
+		</div>
+		<div>
+			<chart *ngIf="data" [options]="options"></chart>
+		</div>
 	</div>
+	<div class="column is-2"></div>
 </div>
