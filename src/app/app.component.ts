@@ -19,7 +19,7 @@ export class AppComponent {
   dataSource: Observable<any>;
 
   public constructor(private movieStore: MovieStore, private indexedDB: IndexedDBService) {
-    this.setDataSource();
+    //this.setDataSource();
   }
 
   private setDataSource(): void {

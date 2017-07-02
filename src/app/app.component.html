@@ -12,7 +12,7 @@
 
 	<div class="nav-center">
 		<div class="nav-item">
-			<input [(ngModel)]="discMovie" [typeahead]="dataSource"
+			<input [(ngModel)]="discMovie" [typeahead]="movieStore.movies"
 				typeaheadOptionField="movie_title" class="input">
 		</div>
 	</div>
