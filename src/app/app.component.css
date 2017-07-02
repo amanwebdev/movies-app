@@ -15,9 +15,7 @@
 .tabs{
     margin-top:10px !important;
 }
-.nav-item{
-    padding:0px !important;
-}
+
 typeahead-container ul {
     width: 500px !important;
     background-color: white !important;

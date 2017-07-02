@@ -8,6 +8,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/Rx';
 
 import { Movie } from './movie';
+import { AngularIndexedDB } from 'angular2-indexeddb';
 
 @Injectable()
 export class MovieService {
@@ -15,10 +16,12 @@ export class MovieService {
   private options: RequestOptions;
 
   private baseUrl = 'http://starlord.hackerearth.com';
+  private db = new AngularIndexedDB('myDb', 1);
 
   constructor(private http: Http) {
     this.getHeaders();
   }
+
   private getHeaders(): void {
     const headers = new Headers({ 'Content-Type': 'application/json' });
     this.options = new RequestOptions({ headers: headers });

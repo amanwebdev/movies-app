@@ -1,7 +1,11 @@
 import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { MovieService } from './movie.service';
 import { Movie } from './movie';
+import { MovieStore } from './movie-store';
 import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { AngularIndexedDB } from 'angular2-indexeddb';
+import { IndexedDBService } from './indexeddb.service';
 
 enum SortType {
   score, name, platform
@@ -21,7 +25,7 @@ enum SortOrder {
 export class HomeComponent implements OnInit {
 
 
-  discmovie: Movie;
+
 
   movies: Movie[];
   currPagemovies: Movie[];
@@ -35,11 +39,15 @@ export class HomeComponent implements OnInit {
   public totalItems: number = 0;
 
   public searchText: string; y
-  public dataSource: Observable<any>;
 
 
-  public constructor(private movieService: MovieService) {
-    //    this.setDataSource();
+  private db: AngularIndexedDB;
+
+  public genreFilters: string[] = [];
+
+  public constructor(private movieService: MovieService, 
+    private indexedDB: IndexedDBService, private movieStore: MovieStore) {
+    
   }
   public ngOnInit(): void {
 
@@ -47,18 +55,30 @@ export class HomeComponent implements OnInit {
       this.movies = garr;
       this.totalItems = this.movies.length;
       this.setCurrentPage();
+
+      this.movies.forEach(m => {
+        this.indexedDB.addRecordAsync("MovieStore", m).forEach(
+          (readyState) => { console.log('IndexedDB service: adding record: ' + readyState); }, null
+        );
+      });
+
     });
 
   }
 
-  private setDataSource(): void {
-    //    this.dataSource = Observable
-    //      .create((observer: any) => {
-    //        observer.next(this.discmovie);
-    //      })
-    //      .mergeMap((token: string) =>
-    //        this.movieService.find(token));
+  get moviesList(): Observable<Array<Movie>> {
+
+    return new Observable((observer: Observer<Array<Movie>>) => {
+
+      observer.next(this.movieStore.movies);
+      observer.complete();
+
+    });
+
   }
+
+
+
 
   public pageChanged(event: any): void {
     console.log('Page changed to: ' + event.page);
@@ -90,7 +110,7 @@ export class HomeComponent implements OnInit {
     this.currentPage = 0;
     this.sortBy.sortType = SortType.name;
     this.sortBy.order = this.sortBy.order === SortOrder.asc ? SortOrder.desc : SortOrder.asc;
-    this.movies = this.movies.sort((a:any, b:any) => {
+    this.movies = this.movies.sort((a: any, b: any) => {
       if (this.sortBy.order == SortOrder.asc) {
         return (b.title_year) - (a.title_year);
       }
@@ -99,14 +119,45 @@ export class HomeComponent implements OnInit {
     this.setCurrentPage();
   }
 
-//  public filtermoviesByText(): void {
-//    const tempmovies = this.movies.slice();
-//    this.movies = this.movies.filter(a => a.title.toLowerCase()
-//      .search(this.searchText.toLowerCase()) > -1);
-//    this.currentPage = 0;
-//    this.setCurrentPage();
-//    this.movies = tempmovies;
-//  }
+  public addGenreInFiltres(genre: string, checked: true) {
+    if (checked == true) {
+      if (this.genreFilters.filter(e => e === genre).length === 0) {
+        this.genreFilters.push(genre);
+      }
+    } else {
+      this.genreFilters = this.genreFilters.filter(e => e != genre);
+    }
+
+    this.filterMoviesList();
+    this.resetPagination();
+  }
+
+  public resetFilters() {
+    this.genreFilters = [];
+    this.filterMoviesList();
+    this.resetPagination();
+  }
+
+  public isGenreChecked(genre: any): boolean {
+    return this.genreFilters.indexOf(genre) > -1;
+  }
+
+  public filterMoviesList(): void {
+    if (this.genreFilters.length == 0) {
+      this.movies = this.movieStore.movies;
+      return;
+    }
+    this.movies = this.movieStore.movies.filter(m => {
+      const res = m.genres.split("|").filter(g => {
+        return this.genreFilters.indexOf(g) > -1
+      })
+      return (res.length > 0);
+    });
+  }
+  public resetPagination() {
+    this.currentPage = 0;
+    this.setCurrentPage();
+  }
 
   public typeaheadOnSelect(event: any) {
 
